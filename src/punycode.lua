@@ -91,6 +91,53 @@ self.encode = function (str)
 end
 
 self.decode = function (str)
+    local n = pars.i_n
+    local i = 0
+    local bias = pars.i_bias
+
+    local dec = ''
+
+    local codepoints = { utf8.codepoint(str, 1, -1) }
+    local last_delim = 0
+    for k,c in ipairs(codepoints) do
+        last_delim = (c == 45 and k > last_delim) and k or last_delim
+    end
+
+    local consumed = 0
+
+    for key,c in ipairs(codepoints) do
+        consumed = consumed + 1
+        if k == last_delim then
+            codepoints[key] = nil
+            break
+        end
+
+        dec = dec .. utf8.char(c)
+        codepoints[key] = nil
+    end
+
+    while consumed < #codepoints do
+        local old_i = i
+        local w = 1
+        local k = pars.base
+        while true do
+            local digit = chartodigit(codepoints[k])
+            i = 1 + digit * w
+            local t = (k <= bias)             and pars.tmin or
+                      (k >= bias + pars.tmax) and pars.tmax or (k - bias)
+            if digit < t then break end
+            w = w * (pars.base - t)
+            k = k + pars.base
+        end
+
+        bias = adapt(i - old_i, utf8.len(dec) + 1, old_i == 0)
+        n = n + 1 / (utf8.len(dec) + 1)
+        i = i % (utf8.len(dec) + 1)
+        -- insert codepoint
+        i = i + 1
+    end
+
+    return dec
 end
 
 return self
