@@ -95,24 +95,23 @@ self.decode = function (str)
     local i = 0
     local bias = pars.i_bias
 
-    local dec = ''
-
     local codepoints = { utf8.codepoint(str, 1, -1) }
+    local target = {}
     local last_delim = 0
-    for k,c in ipairs(codepoints) do
-        last_delim = (c == 45 and k > last_delim) and k or last_delim
+    for key,c in ipairs(codepoints) do
+        last_delim = (c == 45 and key > last_delim) and key or last_delim
     end
 
     local consumed = 0
 
     for key,c in ipairs(codepoints) do
         consumed = consumed + 1
-        if k == last_delim then
+        if key == last_delim then
             codepoints[key] = nil
             break
         end
 
-        dec = dec .. utf8.char(c)
+        target[#target + 1] = c
         codepoints[key] = nil
     end
 
@@ -135,6 +134,11 @@ self.decode = function (str)
         i = i % (utf8.len(dec) + 1)
         -- insert codepoint
         i = i + 1
+    end
+
+    local dec = ''
+    for _,c in ipairs(target) do
+        dec = dec .. utf8.char(c)
     end
 
     return dec
