@@ -102,19 +102,19 @@ self.decode = function (str)
         last_delim = (c == 45 and key > last_delim) and key or last_delim
     end
 
-    if last_delim == 0 then return str end
-
     local consumed = 0
 
-    for key,c in ipairs(codepoints) do
-        consumed = consumed + 1
-        if key == last_delim then
-            table.remove(codepoints, key)
-            break
-        end
+    if last_delim ~= 0 then
+        for key,c in ipairs(codepoints) do
+            consumed = consumed + 1
+            if key == last_delim then
+                table.remove(codepoints, key)
+                break
+            end
 
-        target[#target + 1] = c
-        table.remove(codepoints, key)
+            target[#target + 1] = c
+            table.remove(codepoints, key)
+        end
     end
 
     while consumed < #codepoints do
