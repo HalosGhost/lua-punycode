@@ -34,7 +34,7 @@ local adapt = function (delta, numpoints, firsttime)
         k = k + pars.base
     end
 
-    return k + (((pars.base - pars.tmin + 1) * delta) / (delta + pars.skew))
+    return k + (pars.base - pars.tmin + 1) * delta / (delta + pars.skew)
 end
 
 self.encode = function (str)
